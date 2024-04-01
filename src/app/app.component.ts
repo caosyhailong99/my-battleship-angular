@@ -9,17 +9,19 @@ import { io } from 'socket.io-client';
 export class AppComponent {
   title = 'my-battleship';
   tenArray = new Array(10);
-  socket = io('localhost:3000');
+  io = io('localhost:3000');
 
   ngOnInit() {
-    this.socket.on("connection", (socket) => {
-      console.log('Ok', socket.id);
+    this.io.on("connection", (socket) => {
+    });
+    this.io.on('hit-the-island', (coordination: {x: number, y: number}) => {
     });
   }
 
-  onClickGameBox(event: MouseEvent) {
+  onClickGameBox(event: MouseEvent, coordination: {x: number, y: number}) {
     let gameBoxEl = event.target as HTMLDivElement;
     let shotDotEl = gameBoxEl.querySelector('.shot-dot') as HTMLDivElement;
     shotDotEl.style.display = 'block'
+    this.io.emit('send-coordination', coordination);
   }
 }
