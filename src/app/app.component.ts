@@ -17,7 +17,9 @@ export class AppComponent {
     Array.from({ length: 10 }, () => false),
   );
 
+
   ngOnInit() {
+    this.shipPlacements[4][3] = true; // Coordination: [x, y] = [3, 4]
     this.socket.on('connect', () => {
       console.log('connect', this.socket.id);
       console.log(this.gameBoxHitStatus);
@@ -41,5 +43,14 @@ export class AppComponent {
     shotDotEl.style.display = 'block';
     this.gameBoxHitStatus[coordination.x][coordination.y] = true;
     this.socket.emit('send-coordination', coordination);
+  }
+
+  onDropShip(event: any, i: number, j: number) {
+    console.log(event);
+    console.log(i, j);
+  }
+
+  onDragOver(event: any) {
+    event.preventDefault();
   }
 }

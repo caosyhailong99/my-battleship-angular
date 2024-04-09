@@ -7,6 +7,8 @@
       <div
         *ngFor="let subEl of tenArray; let j = index"
         (click)="onClickGameBox($event, { x: i, y: j })"
+        (drop)="onDropShip($event, i, j)"
+        (dragover)="onDragOver($event)"
         class="game-table-box w-10 h-10 bg-orange-400 rounded-lg flex justify-center items-center cursor-pointer"
       >
         <div
@@ -18,5 +20,8 @@
         ></div>
       </div>
     </div>
+  </div>
+  <div class="w-10 h-[184px] bg-blue-400" draggable="true">
+
   </div>
 </div>
