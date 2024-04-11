@@ -1,15 +1,14 @@
-<div class="app-wrapper w-screen h-screen flex justify-center items-center">
-  <div class="game-table flex flex-col gap-2">
+<div class="app-wrapper w-screen h-screen flex flex-col gap-6 justify-center items-center">
+  <div class="game-table flex flex-col">
     <div
       *ngFor="let el of tenArray; let i = index"
-      class="game-table-row flex gap-2"
+      class="game-table-row flex"
     >
       <div
         *ngFor="let subEl of tenArray; let j = index"
-        (click)="onClickGameBox($event, { x: i, y: j })"
-        (drop)="onDropShip($event, i, j)"
-        (dragover)="onDragOver($event)"
-        class="game-table-box w-10 h-10 bg-orange-400 rounded-lg flex justify-center items-center cursor-pointer"
+        (click)="onClickGameBox({x: j, y: i})"
+        [ngClass]="{'bg-blue-600': selectedPosition?.x === j && selectedPosition?.y === i}"
+        class="game-table-box w-10 h-10 bg-orange-400 flex justify-center items-center cursor-pointer border border-solid border-black relative"
       >
         <div
           [ngClass]="{
@@ -18,10 +17,21 @@
           }"
           class="shot-dot w-3 h-3 rounded-full"
         ></div>
+        <button *ngIf="selectedPosition?.x === j && selectedPosition?.y === i" class="absolute -top-5 tranform -translate-y-1/2 z-[9]"> top</button>
+        <button *ngIf="selectedPosition?.x === j && selectedPosition?.y === i" class="absolute -right-10 top-1/2 tranform -translate-y-1/2 z-[9]"> right</button>
+        <button *ngIf="selectedPosition?.x === j && selectedPosition?.y === i" class="absolute -bottom-10 tranform -translate-y-1/2 z-[9]"> bottom</button>
+        <button *ngIf="selectedPosition?.x === j && selectedPosition?.y === i" class="absolute -left-[30px] top-1/2 tranform -translate-y-1/2 z-[9]"> left</button>
       </div>
     </div>
   </div>
-  <div class="w-10 h-[184px] bg-blue-400" draggable="true">
-
+  <div class="p-6 bg-[#ffebb2] rounded-[20px]">
+    <div (click)="onClickPatrolBoat()" class="patrol-boat flex cursor-pointer">
+      <div class="w-10 h-10 border border-solid border-black bg-green-300"></div>
+      <div class="w-10 h-10 border border-solid border-black bg-green-300"></div>
+    </div>
+  </div>
+  <span>Selected battleship: {{selectedShip}}</span>
+  <div>
+    <button (click)="onClickCancelButton()">Cancel</button>
   </div>
 </div>

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { io } from 'socket.io-client';
+import { BattleShips } from 'src/data/Constants';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,8 @@ export class AppComponent {
     Array.from({ length: 10 }, () => false),
   );
 
+  selectedShip = '';
+  selectedPosition: {x: number, y: number} | null = null;
 
   ngOnInit() {
     this.shipPlacements[4][3] = true; // Coordination: [x, y] = [3, 4]
@@ -37,20 +40,16 @@ export class AppComponent {
     );
   }
 
-  onClickGameBox(event: MouseEvent, coordination: { x: number; y: number }) {
-    let gameBoxEl = event.target as HTMLDivElement;
-    let shotDotEl = gameBoxEl.querySelector('.shot-dot') as HTMLDivElement;
-    shotDotEl.style.display = 'block';
-    this.gameBoxHitStatus[coordination.x][coordination.y] = true;
-    this.socket.emit('send-coordination', coordination);
+  onClickGameBox(coordination: { x: number; y: number}) {
+    if(this.selectedShip && !this.selectedPosition) this.selectedPosition = {...coordination};
   }
 
-  onDropShip(event: any, i: number, j: number) {
-    console.log(event);
-    console.log(i, j);
+  onClickPatrolBoat() {
+    this.selectedShip = BattleShips.PatrolBoat;
   }
 
-  onDragOver(event: any) {
-    event.preventDefault();
+  onClickCancelButton() {
+    this.selectedShip = '';
+    this.selectedPosition = null;
   }
 }
