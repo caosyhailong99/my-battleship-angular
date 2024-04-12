@@ -8,6 +8,9 @@ import { BattleShips } from 'src/data/Constants';
   styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
+  readonly BattleShips = BattleShips;
+  readonly ROW_NUMBER = 10;
+  readonly COL_NUMBER = 10;
   title = 'my-battleship';
   tenArray = new Array(10);
   socket = io('http://localhost:3000');
@@ -15,14 +18,14 @@ export class AppComponent {
     Array.from({ length: 10 }, () => false),
   );
   shipPlacements = Array.from({ length: 10 }, () =>
-    Array.from({ length: 10 }, () => false),
+    Array.from({ length: 10 }, () => ''),
   );
 
   selectedShip = '';
   selectedPosition: {x: number, y: number} | null = null;
 
   ngOnInit() {
-    this.shipPlacements[4][3] = true; // Coordination: [x, y] = [3, 4]
+    this.shipPlacements[4][3] = ''; // Coordination: [x, y] = [3, 4]
     this.socket.on('connect', () => {
       console.log('connect', this.socket.id);
       console.log(this.gameBoxHitStatus);
@@ -44,8 +47,44 @@ export class AppComponent {
     if(this.selectedShip && !this.selectedPosition) this.selectedPosition = {...coordination};
   }
 
+  onClickTopButton() {
+    if(this.selectedPosition) {
+      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
+      this.shipPlacements[this.selectedPosition.y - 1][this.selectedPosition.x] = this.selectedShip;
+      this.selectedShip = '';
+      this.selectedPosition = null;
+    }
+  }
+
+  onClickBottomButton() {
+    if(this.selectedPosition) {
+      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
+      this.shipPlacements[this.selectedPosition.y + 1][this.selectedPosition.x] = this.selectedShip;
+      this.selectedShip = '';
+      this.selectedPosition = null;
+    }
+  }
+
+  onClickLeftButton() {
+    if(this.selectedPosition) {
+      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
+      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x - 1] = this.selectedShip;
+      this.selectedShip = '';
+      this.selectedPosition = null;
+    }
+  }
+
+  onClickRightButton() {
+    if(this.selectedPosition) {
+      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
+      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x + 1] = this.selectedShip;
+      this.selectedShip = '';
+      this.selectedPosition = null;
+    }
+  }
+
   onClickPatrolBoat() {
-    this.selectedShip = BattleShips.PatrolBoat;
+    this.selectedShip = BattleShips.patrolBoat.name;
   }
 
   onClickCancelButton() {

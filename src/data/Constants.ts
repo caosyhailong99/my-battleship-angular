@@ -1,3 +1,6 @@
-export enum BattleShips {
-  PatrolBoat = 'Patrol boat',
-}
+export const BattleShips =  {
+  patrolBoat: {
+    name: 'Patrol boat',
+    length: 2,
+  }
+};
