@@ -1,38 +1,62 @@
 <div class="app-wrapper w-screen h-screen flex flex-col gap-6 justify-center items-center">
-  <div class="game-table flex flex-col">
-    <div
-      *ngFor="let el of tenArray; let i = index"
-      class="game-table-row flex"
-    >
+  <div class="flex gap-[200px]">
+    <div class="game-table flex flex-col" [ngClass]="{'pointer-events-none': currentPhase === GAME_PHASE.InProgress}">
       <div
-        *ngFor="let subEl of tenArray; let j = index"
-        (click)="onClickGameBox({x: j, y: i})"
-        [ngClass]="{'!bg-blue-600': selectedShip && selectedPosition?.x === j && selectedPosition?.y === i, '!bg-green-300': shipPlacements[i][j] === BattleShips.patrolBoat.name}"
-        class="game-table-box w-10 h-10 bg-orange-400 flex justify-center items-center cursor-pointer border border-solid border-black relative"
+        *ngFor="let el of tenArray; let i = index"
+        class="game-table-row flex"
       >
         <div
-          [ngClass]="{
-            'bg-red-600': gameBoxHitStatus[i][j] && shipPlacements[i][j],
-            'bg-white': gameBoxHitStatus[i][j] && !shipPlacements[i][j]
-          }"
-          class="shot-dot w-3 h-3 rounded-full"
-        ></div>
-        <button (click)="onClickTopButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && i + 1 - BattleShips['patrolBoat'].length >= 0" class="absolute -top-5 tranform -translate-y-1/2 z-[9]"> top</button>
-        <button (click)="onClickRightButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && j - 1 + BattleShips['patrolBoat'].length <= ROW_NUMBER - 1" class="absolute -right-10 top-1/2 tranform -translate-y-1/2 z-[9]"> right</button>
-        <button (click)="onClickBottomButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && i - 1 + BattleShips['patrolBoat'].length <= ROW_NUMBER - 1" class="absolute -bottom-10 tranform -translate-y-1/2 z-[9]"> bottom</button>
-        <button (click)="onClickLeftButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && j + 1 - BattleShips['patrolBoat'].length >= 0" class="absolute -left-[30px] top-1/2 tranform -translate-y-1/2 z-[9]"> left</button>
+          *ngFor="let subEl of tenArray; let j = index"
+          (click)="onClickGameBox({x: j, y: i})"
+          [ngClass]="{'!bg-blue-600': selectedShip && selectedPosition?.x === j && selectedPosition?.y === i, '!bg-green-300': shipPlacements[i][j] === BattleShips.patrolBoat.name}"
+          class="game-table-box w-10 h-10 bg-orange-400 flex justify-center items-center cursor-pointer border border-solid border-black relative"
+        >
+          <div
+            [ngClass]="{
+              'bg-red-600': gameBoxHitStatus[i][j] && shipPlacements[i][j],
+              'bg-white': gameBoxHitStatus[i][j] && !shipPlacements[i][j]
+            }"
+            class="shot-dot w-3 h-3 rounded-full"
+          ></div>
+          <button (click)="onClickTopButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && i + 1 - BattleShips['patrolBoat'].length >= 0" class="absolute -top-5 tranform -translate-y-1/2 z-[9]"> top</button>
+          <button (click)="onClickRightButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && j - 1 + BattleShips['patrolBoat'].length <= ROW_NUMBER - 1" class="absolute -right-10 top-1/2 tranform -translate-y-1/2 z-[9]"> right</button>
+          <button (click)="onClickBottomButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && i - 1 + BattleShips['patrolBoat'].length <= ROW_NUMBER - 1" class="absolute -bottom-10 tranform -translate-y-1/2 z-[9]"> bottom</button>
+          <button (click)="onClickLeftButton()" *ngIf="selectedPosition?.x === j && selectedPosition?.y === i && j + 1 - BattleShips['patrolBoat'].length >= 0" class="absolute -left-[30px] top-1/2 tranform -translate-y-1/2 z-[9]"> left</button>
+        </div>
+      </div>
+    </div>
+    <div class="game-table flex flex-col" [ngClass]="{'pointer-events-none': currentPhase === GAME_PHASE.Preparing}">
+      <div
+        *ngFor="let el of tenArray; let i = index"
+        class="game-table-row flex"
+      >
+        <div
+          *ngFor="let subEl of tenArray; let j = index"
+          (click)="onClickGameBox({x: j, y: i})"
+          class="game-table-box w-10 h-10 bg-orange-400 flex justify-center items-center cursor-pointer border border-solid border-black relative"
+        >
+          <div
+            [ngClass]="{
+              'bg-red-600': gameBoxHitStatus[i][j] && shipPlacements[i][j],
+              'bg-white': gameBoxHitStatus[i][j] && !shipPlacements[i][j]
+            }"
+            class="shot-dot w-3 h-3 rounded-full"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="p-6 bg-[#ffebb2] rounded-[20px]">
-    <div (click)="onClickPatrolBoat()" class="patrol-boat flex cursor-pointer">
-      <div class="w-10 h-10 border border-solid border-black bg-green-300"></div>
-      <div class="w-10 h-10 border border-solid border-black bg-green-300"></div>
+  <ng-container *ngIf="currentPhase === GAME_PHASE.Preparing">
+    <div class="p-6 bg-[#ffebb2] rounded-[20px]">
+      <div (click)="onClickPatrolBoat()" class="patrol-boat flex cursor-pointer">
+        <div class="w-10 h-10 border border-solid border-black bg-green-300"></div>
+        <div class="w-10 h-10 border border-solid border-black bg-green-300"></div>
+      </div>
     </div>
-  </div>
-  <span>Selected battleship: {{selectedShip}}</span>
-  <div *ngIf="selectedShip && selectedPosition">
-    <button (click)="onClickCancelButton()">Cancel</button>
-  </div>
-  <button>Start</button>
+    <span>Selected battleship: {{selectedShip}}</span>
+    <div *ngIf="selectedShip && selectedPosition">
+      <button (click)="onClickCancelButton()">Cancel</button>
+    </div>
+    <button (click)="onClickStartButton()">Start</button>
+  </ng-container>
 </div>

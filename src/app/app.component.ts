@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { io } from 'socket.io-client';
-import { BattleShips } from 'src/data/Constants';
+import { BattleShips, COL_NUMBER, GamePhase, ROW_NUMBER } from 'src/data/Constants';
 
 @Component({
   selector: 'app-root',
@@ -9,11 +9,14 @@ import { BattleShips } from 'src/data/Constants';
 })
 export class AppComponent {
   readonly BattleShips = BattleShips;
-  readonly ROW_NUMBER = 10;
-  readonly COL_NUMBER = 10;
+  readonly ROW_NUMBER = ROW_NUMBER;
+  readonly COL_NUMBER = COL_NUMBER;
+  readonly GAME_PHASE = GamePhase;
   title = 'my-battleship';
   tenArray = new Array(10);
   socket = io('http://localhost:3000');
+  currentPhase = this.GAME_PHASE.Preparing;
+
   gameBoxHitStatus = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => false),
   );
@@ -45,6 +48,7 @@ export class AppComponent {
 
   onClickGameBox(coordination: { x: number; y: number}) {
     if(this.selectedShip && !this.selectedPosition) this.selectedPosition = {...coordination};
+    console.log(this.selectedPosition);
   }
 
   onClickTopButton() {
@@ -85,6 +89,10 @@ export class AppComponent {
 
   onClickPatrolBoat() {
     this.selectedShip = BattleShips.patrolBoat.name;
+  }
+
+  onClickStartButton() {
+    this.currentPhase = this.GAME_PHASE.InProgress;
   }
 
   onClickCancelButton() {
