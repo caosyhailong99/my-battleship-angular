@@ -1,6 +1,6 @@
 <div class="app-wrapper w-screen h-screen flex flex-col gap-6 justify-center items-center">
   <div class="flex gap-[200px]">
-    <div class="game-table flex flex-col" [ngClass]="{'pointer-events-none': currentPhase === GAME_PHASE.InProgress}">
+    <div #gameBox class="game-table flex flex-col" [ngClass]="{'pointer-events-none': currentPhase === GAME_PHASE.InProgress}">
       <div
         *ngFor="let el of tenArray; let i = index"
         class="game-table-row flex"
@@ -25,20 +25,20 @@
         </div>
       </div>
     </div>
-    <div class="game-table flex flex-col" [ngClass]="{'pointer-events-none': currentPhase === GAME_PHASE.Preparing}">
+    <div #opponentBox class="game-table flex flex-col" [ngClass]="{'pointer-events-none': currentPhase === GAME_PHASE.Preparing}">
       <div
         *ngFor="let el of tenArray; let i = index"
         class="game-table-row flex"
       >
         <div
           *ngFor="let subEl of tenArray; let j = index"
-          (click)="onClickGameBox({x: j, y: i})"
+          (click)="onClickOpponentBox({x: j, y: i})"
           class="game-table-box w-10 h-10 bg-orange-400 flex justify-center items-center cursor-pointer border border-solid border-black relative"
         >
           <div
             [ngClass]="{
-              'bg-red-600': gameBoxHitStatus[i][j] && shipPlacements[i][j],
-              'bg-white': gameBoxHitStatus[i][j] && !shipPlacements[i][j]
+              'bg-red-600': opponentBoxHitStatus[j][i] && shipPlacements[j][i],
+              'bg-white': opponentBoxHitStatus[j][i]
             }"
             class="shot-dot w-3 h-3 rounded-full"
           ></div>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { io } from 'socket.io-client';
 import { BattleShips, COL_NUMBER, GamePhase, ROW_NUMBER } from 'src/data/Constants';
 
@@ -8,6 +8,8 @@ import { BattleShips, COL_NUMBER, GamePhase, ROW_NUMBER } from 'src/data/Constan
   styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
+  @ViewChild('gameBox') gameBox: ElementRef | undefined;
+  @ViewChild('opponentBox') opponentBox: ElementRef | undefined
   readonly BattleShips = BattleShips;
   readonly ROW_NUMBER = ROW_NUMBER;
   readonly COL_NUMBER = COL_NUMBER;
@@ -20,6 +22,10 @@ export class AppComponent {
   gameBoxHitStatus = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => false),
   );
+
+  opponentBoxHitStatus = Array.from({ length: 10 }, () =>
+    Array.from({ length: 10 }, () => false),
+  );
   shipPlacements = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => ''),
   );
@@ -27,28 +33,45 @@ export class AppComponent {
   selectedShip = '';
   selectedPosition: {x: number, y: number} | null = null;
 
+  constructor(private cd: ChangeDetectorRef) {}
+
   ngOnInit() {
     this.shipPlacements[4][3] = ''; // Coordination: [x, y] = [3, 4]
     this.socket.on('connect', () => {
       console.log('connect', this.socket.id);
-      console.log(this.gameBoxHitStatus);
     });
     this.socket.on(
       'broadcast-coordination',
       (coordination: { x: number; y: number }) => {
         console.log('coordination', coordination);
         this.gameBoxHitStatus[coordination.x][coordination.y] = true;
-        let rowRef = document.getElementsByClassName('game-table-row')[coordination.x];
-        let boxRef = rowRef.getElementsByClassName('game-table-box')[coordination.y] as HTMLDivElement;
-        let shotDotEl = boxRef.querySelector('.shot-dot') as HTMLDivElement;
-        shotDotEl.style.display = 'block';
+        if(this.gameBox)
+          this.updateBoxHitStatus(coordination, this.gameBox);
       },
     );
   }
 
   onClickGameBox(coordination: { x: number; y: number}) {
     if(this.selectedShip && !this.selectedPosition) this.selectedPosition = {...coordination};
-    console.log(this.selectedPosition);
+  }
+
+  onClickOpponentBox(coordination: { x: number; y: number}) {
+    if(!this.opponentBoxHitStatus[coordination.x][coordination.y]) {
+      this.opponentBoxHitStatus[coordination.x][coordination.y] = true;
+      this.updateBoxHitStatus(coordination, this.opponentBox);
+      this.cd.detectChanges();
+    }
+  }
+
+  updateBoxHitStatus(coordination: { x: number; y: number}, gameBox: ElementRef | undefined) {
+    debugger;
+    if(gameBox) {
+      console.log(gameBox.nativeElement.getElementsByClassName('game-table-row'));
+      let rowRef = gameBox.nativeElement.getElementsByClassName('game-table-row')[coordination.x];
+      let boxRef = rowRef.getElementsByClassName('game-table-box')[coordination.y] as HTMLDivElement;
+      let shotDotEl = boxRef.querySelector('.shot-dot') as HTMLDivElement;
+      shotDotEl.style.display = 'block';
+    }
   }
 
   onClickTopButton() {
