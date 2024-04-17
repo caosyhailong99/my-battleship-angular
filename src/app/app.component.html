@@ -37,8 +37,8 @@
         >
           <div
             [ngClass]="{
-              'bg-red-600': opponentBoxHitStatus[j][i] && shipPlacements[j][i],
-              'bg-white': opponentBoxHitStatus[j][i]
+              'bg-red-600': opponentBoxHitStatus[i][j] && shipPlacements[i][j],
+              'bg-white': opponentBoxHitStatus[i][j]
             }"
             class="shot-dot w-3 h-3 rounded-full"
           ></div>

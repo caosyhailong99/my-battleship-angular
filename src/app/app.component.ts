@@ -44,7 +44,7 @@ export class AppComponent {
       'broadcast-coordination',
       (coordination: { x: number; y: number }) => {
         console.log('coordination', coordination);
-        this.gameBoxHitStatus[coordination.x][coordination.y] = true;
+        this.gameBoxHitStatus[coordination.y][coordination.x] = true;
         if(this.gameBox)
           this.updateBoxHitStatus(coordination, this.gameBox);
       },
@@ -53,22 +53,22 @@ export class AppComponent {
 
   onClickGameBox(coordination: { x: number; y: number}) {
     if(this.selectedShip && !this.selectedPosition) this.selectedPosition = {...coordination};
+
   }
 
   onClickOpponentBox(coordination: { x: number; y: number}) {
-    if(!this.opponentBoxHitStatus[coordination.x][coordination.y]) {
-      this.opponentBoxHitStatus[coordination.x][coordination.y] = true;
+    if(!this.opponentBoxHitStatus[coordination.y][coordination.x]) {
+      this.opponentBoxHitStatus[coordination.y][coordination.x] = true;
       this.updateBoxHitStatus(coordination, this.opponentBox);
-      this.cd.detectChanges();
+      this.socket.emit('send-coordination', coordination);
     }
   }
 
   updateBoxHitStatus(coordination: { x: number; y: number}, gameBox: ElementRef | undefined) {
-    debugger;
     if(gameBox) {
       console.log(gameBox.nativeElement.getElementsByClassName('game-table-row'));
-      let rowRef = gameBox.nativeElement.getElementsByClassName('game-table-row')[coordination.x];
-      let boxRef = rowRef.getElementsByClassName('game-table-box')[coordination.y] as HTMLDivElement;
+      let rowRef = gameBox.nativeElement.getElementsByClassName('game-table-row')[coordination.y];
+      let boxRef = rowRef.getElementsByClassName('game-table-box')[coordination.x] as HTMLDivElement;
       let shotDotEl = boxRef.querySelector('.shot-dot') as HTMLDivElement;
       shotDotEl.style.display = 'block';
     }
