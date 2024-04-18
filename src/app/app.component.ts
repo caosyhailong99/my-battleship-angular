@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
-import { io } from 'socket.io-client';
-import { BattleShips, COL_NUMBER, GamePhase, ROW_NUMBER } from 'src/data/Constants';
+import { Socket, io } from 'socket.io-client';
+import { BattleShipTypes, BattleShips, COL_NUMBER, GamePhase, ROW_NUMBER } from 'src/data/Constants';
 
 @Component({
   selector: 'app-root',
@@ -8,35 +8,34 @@ import { BattleShips, COL_NUMBER, GamePhase, ROW_NUMBER } from 'src/data/Constan
   styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
-  @ViewChild('gameBox') gameBox: ElementRef | undefined;
-  @ViewChild('opponentBox') opponentBox: ElementRef | undefined
-  readonly BattleShips = BattleShips;
-  readonly ROW_NUMBER = ROW_NUMBER;
-  readonly COL_NUMBER = COL_NUMBER;
+  readonly BattleShips = JSON.parse(JSON.stringify(BattleShips));
+  readonly BattleShipTypes = BattleShipTypes;
+  readonly ROW_NUMBER: number = ROW_NUMBER;
+  readonly COL_NUMBER: number = COL_NUMBER;
   readonly GAME_PHASE = GamePhase;
-  title = 'my-battleship';
-  tenArray = new Array(10);
-  socket = io('http://localhost:3000');
-  currentPhase = this.GAME_PHASE.Preparing;
 
-  gameBoxHitStatus = Array.from({ length: 10 }, () =>
+  title: string = 'my-battleship';
+  tenArray: any[] = new Array(10);
+  socket: Socket = io('http://localhost:3000');
+  currentPhase: string = this.GAME_PHASE.Preparing;
+  gameBoxHitStatus: boolean[][] = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => false),
   );
-
-  opponentBoxHitStatus = Array.from({ length: 10 }, () =>
+  opponentBoxHitStatus: boolean[][] = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => false),
   );
-  shipPlacements = Array.from({ length: 10 }, () =>
+  shipPlacements: string[][] = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => ''),
   );
-
-  selectedShip = '';
+  selectedShip: string = '';
   selectedPosition: {x: number, y: number} | null = null;
+
+  @ViewChild('gameBox') gameBox: ElementRef | undefined;
+  @ViewChild('opponentBox') opponentBox: ElementRef | undefined
 
   constructor(private cd: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.shipPlacements[4][3] = ''; // Coordination: [x, y] = [3, 4]
     this.socket.on('connect', () => {
       console.log('connect', this.socket.id);
     });
@@ -75,43 +74,47 @@ export class AppComponent {
   }
 
   onClickTopButton() {
+    let shipLength: number = BattleShips[this.selectedShip].length;
     if(this.selectedPosition) {
-      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
-      this.shipPlacements[this.selectedPosition.y - 1][this.selectedPosition.x] = this.selectedShip;
+      for(let i = 0; i < shipLength; i++) 
+        this.shipPlacements[this.selectedPosition.y - i][this.selectedPosition.x] = this.selectedShip;
       this.selectedShip = '';
       this.selectedPosition = null;
     }
   }
 
   onClickBottomButton() {
+    let shipLength: number = BattleShips[this.selectedShip].length;
     if(this.selectedPosition) {
-      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
-      this.shipPlacements[this.selectedPosition.y + 1][this.selectedPosition.x] = this.selectedShip;
+      for(let i = 0; i < shipLength; i++)
+        this.shipPlacements[this.selectedPosition.y + i][this.selectedPosition.x] = this.selectedShip;
       this.selectedShip = '';
       this.selectedPosition = null;
     }
   }
 
   onClickLeftButton() {
+    let shipLength: number = BattleShips[this.selectedShip].length;
     if(this.selectedPosition) {
-      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
-      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x - 1] = this.selectedShip;
+      for(let i = 0; i < shipLength; i++)
+        this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x - i] = this.selectedShip;
       this.selectedShip = '';
       this.selectedPosition = null;
     }
   }
 
   onClickRightButton() {
+    let shipLength: number = BattleShips[this.selectedShip].length;
     if(this.selectedPosition) {
-      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x] = this.selectedShip;
-      this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x + 1] = this.selectedShip;
+      for(let i = 0; i < shipLength; i++)
+        this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x + i] = this.selectedShip;
       this.selectedShip = '';
       this.selectedPosition = null;
     }
   }
 
-  onClickPatrolBoat() {
-    this.selectedShip = BattleShips.patrolBoat.name;
+  onClickBoat(shipName: string) {
+    this.selectedShip = shipName;
   }
 
   onClickStartButton() {
