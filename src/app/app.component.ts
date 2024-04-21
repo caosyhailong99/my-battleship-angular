@@ -1,6 +1,18 @@
-import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { Socket, io } from 'socket.io-client';
-import { BattleShipTypes, BattleShips, COL_NUMBER, GamePhase, ROW_NUMBER } from 'src/data/Constants';
+import {
+  BattleShipTypes,
+  BattleShips,
+  COL_NUMBER,
+  GamePhase,
+  ROW_NUMBER,
+  TOTAL_SHIP_AMOUNT,
+} from 'src/data/Constants';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +24,7 @@ export class AppComponent {
   readonly BattleShipTypes = BattleShipTypes;
   readonly ROW_NUMBER: number = ROW_NUMBER;
   readonly COL_NUMBER: number = COL_NUMBER;
+  readonly TOTAL_SHIP_AMOUNT: number = TOTAL_SHIP_AMOUNT;
   readonly GAME_PHASE = GamePhase;
 
   title: string = 'my-battleship';
@@ -28,10 +41,13 @@ export class AppComponent {
     Array.from({ length: 10 }, () => ''),
   );
   selectedShip: string = '';
-  selectedPosition: {x: number, y: number} | null = null;
+  selectedPosition: { x: number; y: number } | null = null;
+  positionedShipAmount = 0;
 
   @ViewChild('gameBox') gameBox: ElementRef | undefined;
-  @ViewChild('opponentBox') opponentBox: ElementRef | undefined
+  @ViewChild('opponentBox') opponentBox: ElementRef | undefined;
+  @ViewChild('patrolBoat') patrolBoat: ElementRef | undefined;
+  @ViewChild('submarine') submarine: ElementRef | undefined;
 
   constructor(private cd: ChangeDetectorRef) {}
 
@@ -44,72 +60,110 @@ export class AppComponent {
       (coordination: { x: number; y: number }) => {
         console.log('coordination', coordination);
         this.gameBoxHitStatus[coordination.y][coordination.x] = true;
-        if(this.gameBox)
-          this.updateBoxHitStatus(coordination, this.gameBox);
+        if (this.gameBox) this.updateBoxHitStatus(coordination, this.gameBox);
       },
     );
   }
 
-  onClickGameBox(coordination: { x: number; y: number}) {
-    if(this.selectedShip && !this.selectedPosition) this.selectedPosition = {...coordination};
-
+  onClickGameBox(coordination: { x: number; y: number }) {
+    if (this.selectedShip && !this.selectedPosition)
+      this.selectedPosition = { ...coordination };
   }
 
-  onClickOpponentBox(coordination: { x: number; y: number}) {
-    if(!this.opponentBoxHitStatus[coordination.y][coordination.x]) {
+  onClickOpponentBox(coordination: { x: number; y: number }) {
+    if (!this.opponentBoxHitStatus[coordination.y][coordination.x]) {
       this.opponentBoxHitStatus[coordination.y][coordination.x] = true;
       this.updateBoxHitStatus(coordination, this.opponentBox);
       this.socket.emit('send-coordination', coordination);
     }
   }
 
-  updateBoxHitStatus(coordination: { x: number; y: number}, gameBox: ElementRef | undefined) {
-    if(gameBox) {
-      console.log(gameBox.nativeElement.getElementsByClassName('game-table-row'));
-      let rowRef = gameBox.nativeElement.getElementsByClassName('game-table-row')[coordination.y];
-      let boxRef = rowRef.getElementsByClassName('game-table-box')[coordination.x] as HTMLDivElement;
+  updateBoxHitStatus(
+    coordination: { x: number; y: number },
+    gameBox: ElementRef | undefined,
+  ) {
+    if (gameBox) {
+      console.log(
+        gameBox.nativeElement.getElementsByClassName('game-table-row'),
+      );
+      let rowRef =
+        gameBox.nativeElement.getElementsByClassName('game-table-row')[
+          coordination.y
+        ];
+      let boxRef = rowRef.getElementsByClassName('game-table-box')[
+        coordination.x
+      ] as HTMLDivElement;
       let shotDotEl = boxRef.querySelector('.shot-dot') as HTMLDivElement;
       shotDotEl.style.display = 'block';
     }
   }
 
+  removePositionedShip(shipName: string) {
+    let shipDiv!: HTMLElement;
+    switch (shipName) {
+      case BattleShipTypes.PatrolBoat:
+        shipDiv = this.patrolBoat?.nativeElement as HTMLDivElement;
+        break;
+      case BattleShipTypes.Submarine:
+        shipDiv = this.submarine?.nativeElement as HTMLDivElement;
+        break;
+    }
+    shipDiv.remove();
+  }
+
   onClickTopButton() {
     let shipLength: number = BattleShips[this.selectedShip].length;
-    if(this.selectedPosition) {
-      for(let i = 0; i < shipLength; i++) 
-        this.shipPlacements[this.selectedPosition.y - i][this.selectedPosition.x] = this.selectedShip;
+    if (this.selectedPosition) {
+      for (let i = 0; i < shipLength; i++)
+        this.shipPlacements[this.selectedPosition.y - i][
+          this.selectedPosition.x
+        ] = this.selectedShip;
+      this.removePositionedShip(this.selectedShip);
       this.selectedShip = '';
       this.selectedPosition = null;
+      this.positionedShipAmount++;
     }
   }
 
   onClickBottomButton() {
     let shipLength: number = BattleShips[this.selectedShip].length;
-    if(this.selectedPosition) {
-      for(let i = 0; i < shipLength; i++)
-        this.shipPlacements[this.selectedPosition.y + i][this.selectedPosition.x] = this.selectedShip;
+    if (this.selectedPosition) {
+      for (let i = 0; i < shipLength; i++)
+        this.shipPlacements[this.selectedPosition.y + i][
+          this.selectedPosition.x
+        ] = this.selectedShip;
+      this.removePositionedShip(this.selectedShip);
       this.selectedShip = '';
       this.selectedPosition = null;
+      this.positionedShipAmount++;
     }
   }
 
   onClickLeftButton() {
     let shipLength: number = BattleShips[this.selectedShip].length;
-    if(this.selectedPosition) {
-      for(let i = 0; i < shipLength; i++)
-        this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x - i] = this.selectedShip;
+    if (this.selectedPosition) {
+      for (let i = 0; i < shipLength; i++)
+        this.shipPlacements[this.selectedPosition.y][
+          this.selectedPosition.x - i
+        ] = this.selectedShip;
+      this.removePositionedShip(this.selectedShip);
       this.selectedShip = '';
       this.selectedPosition = null;
+      this.positionedShipAmount++;
     }
   }
 
   onClickRightButton() {
     let shipLength: number = BattleShips[this.selectedShip].length;
-    if(this.selectedPosition) {
-      for(let i = 0; i < shipLength; i++)
-        this.shipPlacements[this.selectedPosition.y][this.selectedPosition.x + i] = this.selectedShip;
+    if (this.selectedPosition) {
+      for (let i = 0; i < shipLength; i++)
+        this.shipPlacements[this.selectedPosition.y][
+          this.selectedPosition.x + i
+        ] = this.selectedShip;
+      this.removePositionedShip(this.selectedShip);
       this.selectedShip = '';
       this.selectedPosition = null;
+      this.positionedShipAmount++;
     }
   }
 

@@ -16,6 +16,7 @@ export enum BattleShipTypes {
 
 export const ROW_NUMBER = 10;
 export const COL_NUMBER = 10;
+export const TOTAL_SHIP_AMOUNT = 2;
 
 export enum GamePhase {
   Preparing = 'Preparing',

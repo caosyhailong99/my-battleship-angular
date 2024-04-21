@@ -22,7 +22,7 @@
               selectedPosition?.x === j &&
               selectedPosition?.y === i,
             '!bg-green-300': shipPlacements[i][j] === BattleShipTypes.PatrolBoat,
-            'bg-cyan-500': shipPlacements[i][j] === BattleShipTypes.Submarine,
+            '!bg-cyan-500': shipPlacements[i][j] === BattleShipTypes.Submarine,
           }"
           class="game-table-box w-10 h-10 bg-orange-400 flex justify-center items-center cursor-pointer border border-solid border-black relative"
         >
@@ -110,8 +110,9 @@
     </div>
   </div>
   <ng-container *ngIf="currentPhase === GAME_PHASE.Preparing">
-    <div class="p-6 bg-[#ffebb2] rounded-[20px]">
+    <div *ngIf="positionedShipAmount < TOTAL_SHIP_AMOUNT" class="p-6 bg-[#ffebb2] rounded-[20px]">
       <div
+        #patrolBoat
         (click)="onClickBoat(BattleShipTypes.PatrolBoat)"
         class="patrol-boat flex cursor-pointer"
       >
@@ -123,6 +124,7 @@
         ></div>
       </div>
       <div
+        #submarine
         (click)="onClickBoat(BattleShipTypes.Submarine)"
         class="submarine flex cursor-pointer"
       >
@@ -137,7 +139,7 @@
         ></div>
       </div>
     </div>
-    <span>Selected battleship: {{ selectedShip }}</span>
+    <span *ngIf="positionedShipAmount < TOTAL_SHIP_AMOUNT">Selected battleship: {{ selectedShip }}</span>
     <div *ngIf="selectedShip && selectedPosition">
       <button (click)="onClickCancelButton()">Cancel</button>
     </div>
