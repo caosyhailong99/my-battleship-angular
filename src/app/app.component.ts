@@ -53,16 +53,36 @@ export class AppComponent {
 
   ngOnInit() {
     this.socket.on('connect', () => {
-      console.log('connect', this.socket.id);
     });
     this.socket.on(
       'broadcast-coordination',
       (coordination: { x: number; y: number }) => {
-        console.log('coordination', coordination);
         this.gameBoxHitStatus[coordination.y][coordination.x] = true;
         if (this.gameBox) this.updateBoxHitStatus(coordination, this.gameBox);
       },
     );
+    this.socket.on('target-hit', (coordination) => {
+      debugger;
+      if (this.opponentBox) {
+        let shotDotEl = this.getShotDotEl(this.opponentBox, coordination);
+        shotDotEl.classList.remove('bg-white');
+        shotDotEl.classList.add('bg-red-600');
+      }
+    });
+  }
+
+  getShotDotEl(
+    gameBox: ElementRef,
+    coordination: { x: number; y: number },
+  ): HTMLDivElement {
+    let rowRef =
+      gameBox.nativeElement.getElementsByClassName('game-table-row')[
+        coordination.y
+      ];
+    let boxRef = rowRef.getElementsByClassName('game-table-box')[
+      coordination.x
+    ] as HTMLDivElement;
+    return boxRef.querySelector('.shot-dot') as HTMLDivElement;
   }
 
   onClickGameBox(coordination: { x: number; y: number }) {
@@ -83,18 +103,14 @@ export class AppComponent {
     gameBox: ElementRef | undefined,
   ) {
     if (gameBox) {
-      console.log(
-        gameBox.nativeElement.getElementsByClassName('game-table-row'),
-      );
-      let rowRef =
-        gameBox.nativeElement.getElementsByClassName('game-table-row')[
-          coordination.y
-        ];
-      let boxRef = rowRef.getElementsByClassName('game-table-box')[
-        coordination.x
-      ] as HTMLDivElement;
-      let shotDotEl = boxRef.querySelector('.shot-dot') as HTMLDivElement;
+      let shotDotEl = this.getShotDotEl(gameBox, coordination);
       shotDotEl.style.display = 'block';
+      if (this.shipPlacements[coordination.y][coordination.x]) {
+        BattleShips[this.shipPlacements[coordination.y][coordination.x]]
+          .hitCount++;
+        shotDotEl.classList.add('bg-red-600');
+        this.socket.emit('target-hit', coordination);
+      }
     }
   }
 
