@@ -62,7 +62,6 @@ export class AppComponent {
       },
     );
     this.socket.on('target-hit', (coordination) => {
-      debugger;
       if (this.opponentBox) {
         let shotDotEl = this.getShotDotEl(this.opponentBox, coordination);
         shotDotEl.classList.remove('bg-white');
