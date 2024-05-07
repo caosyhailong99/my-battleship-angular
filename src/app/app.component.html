@@ -108,6 +108,7 @@
       </div>
     </div>
   </div>
+  <span *ngIf="sinkedShip">{{sinkedShip}} sank!</span>
   <ng-container *ngIf="currentPhase === GAME_PHASE.Preparing">
     <div *ngIf="positionedShipAmount < TOTAL_SHIP_AMOUNT" class="p-6 bg-[#ffebb2] rounded-[20px]">
       <div

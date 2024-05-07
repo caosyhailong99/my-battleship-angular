@@ -28,21 +28,23 @@ export class AppComponent {
   readonly GAME_PHASE = GamePhase;
 
   title: string = 'my-battleship';
+  sinkedShip = '';
+  selectedShip: string = '';
+  positionedShipAmount = 0;
+  timeoutId: NodeJS.Timeout | undefined;
   tenArray: any[] = new Array(10);
-  socket: Socket = io('http://localhost:3000');
   currentPhase: string = this.GAME_PHASE.Preparing;
   gameBoxHitStatus: boolean[][] = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => false),
   );
+  selectedPosition: { x: number; y: number } | null = null;
   opponentBoxHitStatus: boolean[][] = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => false),
   );
   shipPlacements: string[][] = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => ''),
   );
-  selectedShip: string = '';
-  selectedPosition: { x: number; y: number } | null = null;
-  positionedShipAmount = 0;
+  socket: Socket = io('http://localhost:3000');
 
   @ViewChild('gameBox') gameBox: ElementRef | undefined;
   @ViewChild('opponentBox') opponentBox: ElementRef | undefined;
@@ -52,13 +54,13 @@ export class AppComponent {
   constructor(private cd: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.socket.on('connect', () => {
-    });
+    this.socket.on('connect', () => {});
     this.socket.on(
       'broadcast-coordination',
       (coordination: { x: number; y: number }) => {
         this.gameBoxHitStatus[coordination.y][coordination.x] = true;
-        if (this.gameBox) this.updateBoxHitStatus(coordination, this.gameBox, 'player');
+        if (this.gameBox)
+          this.updateBoxHitStatus(coordination, this.gameBox, 'player');
       },
     );
     this.socket.on('target-hit-response', (coordination) => {
@@ -68,6 +70,11 @@ export class AppComponent {
         shotDotEl.classList.remove('bg-white');
         shotDotEl.classList.add('bg-red-600');
       }
+    });
+    this.socket.on('target-ship-sink', (shipName) => {
+      this.sinkedShip = shipName;
+      if(this.timeoutId) clearTimeout(this.timeoutId);
+      this.timeoutId = setTimeout(() => {this.sinkedShip = '';}, 5000);
     });
   }
 
@@ -101,7 +108,7 @@ export class AppComponent {
   updateBoxHitStatus(
     coordination: { x: number; y: number },
     gameBox: ElementRef | undefined,
-    target: 'player' | 'opponent'
+    target: 'player' | 'opponent',
   ) {
     if (gameBox) {
       let shotDotEl = this.getShotDotEl(gameBox, coordination);
@@ -111,8 +118,8 @@ export class AppComponent {
         let targettedBattleship = BattleShips[shipName];
         targettedBattleship.hitCount++;
         shotDotEl.classList.add('bg-red-600');
-        if(targettedBattleship.hitCount === targettedBattleship.length) 
-          this.socket.emit(shipName);
+        if (targettedBattleship.hitCount === targettedBattleship.length)
+          this.socket.emit('ship-sink', shipName);
         console.log('emit target-hit');
         this.socket.emit('target-hit', coordination);
       }
