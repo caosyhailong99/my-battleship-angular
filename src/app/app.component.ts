@@ -58,10 +58,11 @@ export class AppComponent {
       'broadcast-coordination',
       (coordination: { x: number; y: number }) => {
         this.gameBoxHitStatus[coordination.y][coordination.x] = true;
-        if (this.gameBox) this.updateBoxHitStatus(coordination, this.gameBox);
+        if (this.gameBox) this.updateBoxHitStatus(coordination, this.gameBox, 'player');
       },
     );
-    this.socket.on('target-hit', (coordination) => {
+    this.socket.on('target-hit-response', (coordination) => {
+      console.log('target-hit-response');
       if (this.opponentBox) {
         let shotDotEl = this.getShotDotEl(this.opponentBox, coordination);
         shotDotEl.classList.remove('bg-white');
@@ -92,7 +93,7 @@ export class AppComponent {
   onClickOpponentBox(coordination: { x: number; y: number }) {
     if (!this.opponentBoxHitStatus[coordination.y][coordination.x]) {
       this.opponentBoxHitStatus[coordination.y][coordination.x] = true;
-      this.updateBoxHitStatus(coordination, this.opponentBox);
+      this.updateBoxHitStatus(coordination, this.opponentBox, 'opponent');
       this.socket.emit('send-coordination', coordination);
     }
   }
@@ -100,14 +101,19 @@ export class AppComponent {
   updateBoxHitStatus(
     coordination: { x: number; y: number },
     gameBox: ElementRef | undefined,
+    target: 'player' | 'opponent'
   ) {
     if (gameBox) {
       let shotDotEl = this.getShotDotEl(gameBox, coordination);
       shotDotEl.style.display = 'block';
-      if (this.shipPlacements[coordination.y][coordination.x]) {
-        BattleShips[this.shipPlacements[coordination.y][coordination.x]]
-          .hitCount++;
+      let shipName = this.shipPlacements[coordination.y][coordination.x];
+      if (target === 'player' && shipName) {
+        let targettedBattleship = BattleShips[shipName];
+        targettedBattleship.hitCount++;
         shotDotEl.classList.add('bg-red-600');
+        if(targettedBattleship.hitCount === targettedBattleship.length) 
+          this.socket.emit(shipName);
+        console.log('emit target-hit');
         this.socket.emit('target-hit', coordination);
       }
     }
