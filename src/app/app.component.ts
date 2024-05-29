@@ -45,7 +45,7 @@ export class AppComponent {
   shipPlacements: string[][] = Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => ''),
   );
-  socket: Socket = io('http://localhost:3000');
+  socket: Socket = io(environment.apiUrl);
 
   @ViewChild('gameBox') gameBox: ElementRef | undefined;
   @ViewChild('opponentBox') opponentBox: ElementRef | undefined;
