@@ -21,8 +21,9 @@
               selectedShip &&
               selectedPosition?.x === j &&
               selectedPosition?.y === i,
-            '!bg-green-300': shipPlacements[i][j] === BattleShipTypes.PatrolBoat,
-            '!bg-cyan-500': shipPlacements[i][j] === BattleShipTypes.Submarine,
+            '!bg-green-300': shipPlacements[i][j] === BattleShipTypes.PatrolBoat && BattleShips[shipPlacements[i][j]].isSank === false,
+            '!bg-cyan-500': shipPlacements[i][j] === BattleShipTypes.Submarine && BattleShips[shipPlacements[i][j]].isSank === false,
+            '!bg-zinc-500': shipPlacements[i][j] && BattleShips[shipPlacements[i][j]].isSank === true,
           }"
           class="game-table-box w-10 h-10 bg-orange-400 flex justify-center items-center cursor-pointer border border-solid border-black relative"
         >
@@ -38,7 +39,7 @@
             *ngIf="
               selectedPosition?.x === j &&
               selectedPosition?.y === i &&
-              i + 1 - BattleShips[BattleShipTypes.PatrolBoat].length >= 0
+              i + 1 - BattleShips[selectedShip].length >= 0
             "
             class="absolute -top-5 tranform -translate-y-1/2 z-[9]"
           >
@@ -49,7 +50,7 @@
             *ngIf="
               selectedPosition?.x === j &&
               selectedPosition?.y === i &&
-              j - 1 + BattleShips[BattleShipTypes.PatrolBoat].length <=
+              j - 1 + BattleShips[selectedShip].length <=
                 ROW_NUMBER - 1
             "
             class="absolute -right-10 top-1/2 tranform -translate-y-1/2 z-[9]"
@@ -61,7 +62,7 @@
             *ngIf="
               selectedPosition?.x === j &&
               selectedPosition?.y === i &&
-              i - 1 + BattleShips[BattleShipTypes.PatrolBoat].length <=
+              i - 1 + BattleShips[selectedShip].length <=
                 ROW_NUMBER - 1
             "
             class="absolute -bottom-10 tranform -translate-y-1/2 z-[9]"
@@ -73,7 +74,7 @@
             *ngIf="
               selectedPosition?.x === j &&
               selectedPosition?.y === i &&
-              j + 1 - BattleShips[BattleShipTypes.PatrolBoat].length >= 0
+              j + 1 - BattleShips[selectedShip].length >= 0
             "
             class="absolute -left-[30px] top-1/2 tranform -translate-y-1/2 z-[9]"
           >
@@ -110,7 +111,10 @@
   </div>
   <span *ngIf="sinkedShip">{{sinkedShip}} sank!</span>
   <ng-container *ngIf="currentPhase === GAME_PHASE.Preparing">
-    <div *ngIf="positionedShipAmount < TOTAL_SHIP_AMOUNT" class="p-6 bg-[#ffebb2] rounded-[20px]">
+    <div
+      *ngIf="positionedShipAmount < TOTAL_SHIP_AMOUNT"
+      class="p-6 bg-[#ffebb2] rounded-[20px]"
+    >
       <div
         #patrolBoat
         (click)="onClickBoat(BattleShipTypes.PatrolBoat)"
@@ -139,7 +143,9 @@
         ></div>
       </div>
     </div>
-    <span *ngIf="positionedShipAmount < TOTAL_SHIP_AMOUNT">Selected battleship: {{ selectedShip }}</span>
+    <span *ngIf="positionedShipAmount < TOTAL_SHIP_AMOUNT"
+      >Selected battleship: {{ selectedShip }}</span
+    >
     <div *ngIf="selectedShip && selectedPosition">
       <button (click)="onClickCancelButton()">Cancel</button>
     </div>

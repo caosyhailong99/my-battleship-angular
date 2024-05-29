@@ -2,10 +2,12 @@ export const BattleShips: any =  {
   'Patrol boat': {
     hitCount: 0,
     length: 2,
+    isSank: false,
   },
   'Submarine': {
     hitCount: 0,
     length: 3,
+    isSank: false,
   }
 };
 

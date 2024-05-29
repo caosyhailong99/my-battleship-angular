@@ -115,11 +115,13 @@ export class AppComponent {
       shotDotEl.style.display = 'block';
       let shipName = this.shipPlacements[coordination.y][coordination.x];
       if (target === 'player' && shipName) {
-        let targettedBattleship = BattleShips[shipName];
+        let targettedBattleship = this.BattleShips[shipName];
         targettedBattleship.hitCount++;
         shotDotEl.classList.add('bg-red-600');
-        if (targettedBattleship.hitCount === targettedBattleship.length)
+        if (targettedBattleship.hitCount === targettedBattleship.length) {
+          targettedBattleship.isSank = true;
           this.socket.emit('ship-sink', shipName);
+        }
         console.log('emit target-hit');
         this.socket.emit('target-hit', coordination);
       }
@@ -140,7 +142,7 @@ export class AppComponent {
   }
 
   onClickTopButton() {
-    let shipLength: number = BattleShips[this.selectedShip].length;
+    let shipLength: number = this.BattleShips[this.selectedShip].length;
     if (this.selectedPosition) {
       for (let i = 0; i < shipLength; i++)
         this.shipPlacements[this.selectedPosition.y - i][
@@ -154,7 +156,7 @@ export class AppComponent {
   }
 
   onClickBottomButton() {
-    let shipLength: number = BattleShips[this.selectedShip].length;
+    let shipLength: number = this.BattleShips[this.selectedShip].length;
     if (this.selectedPosition) {
       for (let i = 0; i < shipLength; i++)
         this.shipPlacements[this.selectedPosition.y + i][
@@ -168,7 +170,7 @@ export class AppComponent {
   }
 
   onClickLeftButton() {
-    let shipLength: number = BattleShips[this.selectedShip].length;
+    let shipLength: number = this.BattleShips[this.selectedShip].length;
     if (this.selectedPosition) {
       for (let i = 0; i < shipLength; i++)
         this.shipPlacements[this.selectedPosition.y][
@@ -182,7 +184,7 @@ export class AppComponent {
   }
 
   onClickRightButton() {
-    let shipLength: number = BattleShips[this.selectedShip].length;
+    let shipLength: number = this.BattleShips[this.selectedShip].length;
     if (this.selectedPosition) {
       for (let i = 0; i < shipLength; i++)
         this.shipPlacements[this.selectedPosition.y][
