@@ -13,6 +13,7 @@ import {
   ROW_NUMBER,
   TOTAL_SHIP_AMOUNT,
 } from 'src/data/Constants';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -51,7 +52,9 @@ export class AppComponent {
   @ViewChild('patrolBoat') patrolBoat: ElementRef | undefined;
   @ViewChild('submarine') submarine: ElementRef | undefined;
 
-  constructor(private cd: ChangeDetectorRef) {}
+  constructor(private cd: ChangeDetectorRef) {
+    console.log(environment.production);
+  }
 
   ngOnInit() {
     this.socket.on('connect', () => {});
